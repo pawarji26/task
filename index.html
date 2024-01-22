@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie and Recipe Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #bfc51e;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    section {
+      display: flex;
+      justify-content: space-around;
+      padding: 2em;
+    }
+
+    #movie-container,
+    #recipe-container {
+      flex: 1;
+      margin-right: 1em;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 1em;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    button{
+        background-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Movie and Recipe Search</h1>
+  </header>
+
+  <section>
+    <div id="movie-container">
+      <h2>Movie Search</h2>
+      <input type="text" id="movie-search" placeholder="Search for a movie">
+      <button>submit</button>
+      <ul id="movie-results"></ul>
+    </div>
+
+    <div id="recipe-container">
+      <h2>Recipe Search</h2>
+      <input type="text" id="recipe-search" placeholder="Search for a recipe">
+      <button>search</button>
+      <ul id="recipe-results"></ul>
+    </div>
+  </section>
+
+  <script>
+    // Movie Search
+    const movieSearchInput = document.getElementById('movie-search');
+    const movieResultsList = document.getElementById('movie-results');
+
+    let movieTimeout;
+
+    movieSearchInput.addEventListener('input', () => {
+      clearTimeout(movieTimeout);
+
+      movieTimeout = setTimeout(() => {
+        const searchTerm = movieSearchInput.value.trim();
+        if (searchTerm) {
+          fetch(`http://www.omdbapi.com/?s=${searchTerm}&apikey=YOUR_OMDB_API_KEY`)
+            .then(response => response.json())
+            .then(data => {
+              movieResultsList.innerHTML = '';
+              if (data.Search) {
+                data.Search.forEach(movie => {
+                  const listItem = document.createElement('li');
+                  listItem.textContent = movie.Title;
+                  movieResultsList.appendChild(listItem);
+                });
+              } else {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No results found';
+                movieResultsList.appendChild(listItem);
+              }
+            })
+            .catch(error => console.error(error));
+        } else {
+          movieResultsList.innerHTML = '';
+        }
+      }, 500);
+    });
+
+    // Recipe Search
+    const recipeSearchInput = document.getElementById('recipe-search');
+    const recipeResultsList = document.getElementById('recipe-results');
+
+    let recipeTimeout;
+
+    recipeSearchInput.addEventListener('input', () => {
+      clearTimeout(recipeTimeout);
+
+      recipeTimeout = setTimeout(() => {
+        const searchTerm = recipeSearchInput.value.trim();
+        if (searchTerm) {
+          fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm}`)
+            .then(response => response.json())
+            .then(data => {
+              recipeResultsList.innerHTML = '';
+              if (data.meals) {
+                data.meals.forEach(recipe => {
+                  const listItem = document.createElement('li');
+                  listItem.textContent = recipe.strMeal;
+                  recipeResultsList.appendChild(listItem);
+                });
+              } else {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No results found';
+                recipeResultsList.appendChild(listItem);
+              }
+            })
+            .catch(error => console.error(error));
+        } else {
+          recipeResultsList.innerHTML = '';
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>
